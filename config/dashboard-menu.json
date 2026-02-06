@@ -1,0 +1,39 @@
+{
+  "topItems": [
+    {
+      "id": "home",
+      "label": "Главная",
+      "icon": "Home",
+      "type": "route",
+      "route": "/dashboard"
+    },
+    {
+      "id": "profile",
+      "label": "Профиль",
+      "icon": "User",
+      "type": "route",
+      "route": "/dashboard/profile"
+    },
+    {
+      "id": "settings",
+      "label": "Настройки",
+      "icon": "Settings",
+      "type": "route",
+      "route": "/dashboard/settings"
+    }
+  ],
+  "bottomItems": [
+    {
+      "id": "theme",
+      "label": "Тёмная тема",
+      "icon": "Moon",
+      "type": "theme"
+    },
+    {
+      "id": "logout",
+      "label": "Выйти",
+      "icon": "LogOut",
+      "type": "action"
+    }
+  ]
+}

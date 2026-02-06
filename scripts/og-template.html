@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1cable OG Image Template</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a1a;
+      padding: 20px;
+    }
+
+    /* OG Image контейнер - 1200x630px */
+    .og-container {
+      width: 1200px;
+      height: 630px;
+      background: linear-gradient(135deg, #09090b 0%, #18181b 100%);
+      border: 3px solid #27272a;
+      border-radius: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Декоративные элементы */
+    .og-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .og-container::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    /* Контент */
+    .og-content {
+      position: relative;
+      z-index: 10;
+      padding: 80px 100px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Логотип */
+    .og-logo {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 60px;
+    }
+
+    .og-logo-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: 900;
+      color: white;
+      box-shadow: 0 20px 40px rgba(249, 115, 22, 0.3);
+    }
+
+    .og-logo-text {
+      font-size: 64px;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -2px;
+    }
+
+    /* Заголовок */
+    .og-title {
+      font-size: 72px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 24px;
+      max-width: 900px;
+    }
+
+    .og-title .highlight {
+      color: #f97316;
+    }
+
+    /* Описание */
+    .og-description {
+      font-size: 36px;
+      font-weight: 400;
+      color: #a1a1aa;
+      line-height: 1.4;
+      max-width: 800px;
+      margin-bottom: 40px;
+    }
+
+    /* URL */
+    .og-url {
+      font-size: 28px;
+      font-weight: 500;
+      color: #71717a;
+      margin-top: auto;
+    }
+
+    /* Инструкции */
+    .instructions {
+      margin-top: 40px;
+      padding: 30px;
+      background: #27272a;
+      border-radius: 12px;
+      color: #a1a1aa;
+      max-width: 1200px;
+    }
+
+    .instructions h2 {
+      color: white;
+      margin-bottom: 16px;
+      font-size: 24px;
+    }
+
+    .instructions ol {
+      margin-left: 20px;
+      line-height: 1.8;
+    }
+
+    .instructions code {
+      background: #18181b;
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: #f97316;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <!-- OG Image Preview (1200x630) -->
+  <div style="text-align: center;">
+    <div class="og-container" id="og-image">
+      <div class="og-content">
+        <!-- Лого -->
+        <div class="og-logo">
+          <div class="og-logo-icon">C</div>
+          <div class="og-logo-text">1cable</div>
+        </div>
+
+        <!-- Заголовок -->
+        <h1 class="og-title">
+          ИИ-ассистент для<br>
+          разработки на <span class="highlight">1С</span>
+        </h1>
+
+        <!-- Описание -->
+        <p class="og-description">
+          Облачная IDE с поддержкой языка 1С<br>
+          и встроенным AI помощником
+        </p>
+
+        <!-- URL -->
+        <div class="og-url">app.1cable.tech</div>
+      </div>
+    </div>
+
+    <!-- Инструкции -->
+    <div class="instructions">
+      <h2>📸 Как сохранить OG Image:</h2>
+      <ol>
+        <li>Открой DevTools (F12) → Console</li>
+        <li>Вставь этот код:</li>
+      </ol>
+      <pre style="background: #18181b; padding: 16px; border-radius: 8px; margin: 16px 0; overflow-x: auto;">
+<code>// Скопируй и вставь в консоль
+const element = document.getElementById('og-image');
+const canvas = document.createElement('canvas');
+canvas.width = 1200;
+canvas.height = 630;
+const ctx = canvas.getContext('2d');
+
+// Используй html2canvas или просто сделай скриншот:
+// 1. Увеличь масштаб страницы до 100%
+// 2. Сделай скриншот только блока .og-container (1200x630)
+// 3. Сохрани как app/opengraph-image.png
+
+// Или используй расширение: "GoFullPage" для Chrome
+// или "Awesome Screenshot" для скриншота конкретной области</code>
+      </pre>
+      <ol start="3">
+        <li>Сделай скриншот блока размером <code>1200×630 px</code></li>
+        <li>Сохрани как <code>app/opengraph-image.png</code></li>
+      </ol>
+
+      <p style="margin-top: 20px; color: #fbbf24;">
+        <strong>💡 Альтернатива:</strong> используй <a href="https://www.figma.com/" style="color: #f97316;" target="_blank">Figma</a> 
+        или <a href="https://www.canva.com/" style="color: #f97316;" target="_blank">Canva</a> для создания OG Image по шаблону.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Можно отредактировать текст прямо тут
+    console.log('OG Image Template готов! Размер: 1200x630px');
+    console.log('Сделай скриншот блока и сохрани как app/opengraph-image.png');
+  </script>
+</body>
+</html>
+
