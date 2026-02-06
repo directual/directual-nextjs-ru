@@ -67,6 +67,7 @@ NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id_here
 | `resetPass` | POST | `ResetPasswordRequest` | Запрос ссылки для сброса пароля |
 | `resetPassword` | POST | `reset_password_inputs` | Установка нового пароля (с токеном) |
 | `profile` | GET/POST | `WebUser` | Чтение/обновление профиля |
+| `postUserAction` | POST | `user_actions` | Единая точка входа для пользовательских действий |
 | `uploadFiles` | POST | `file_links` | Загрузка файлов |
 
 > **В новом базовом шаблоне приложения Directual (после 7 февраля 2026 года) все необходимые эндпоинты уже созданы.** Если вы создали приложение на актуальном шаблоне — всё готово из коробки, просто укажите APP_ID.
@@ -231,6 +232,38 @@ if (result.success) {
   console.log(result.data);
 }
 ```
+
+## User Actions — единая точка входа для действий
+
+Паттерн **«единая точка входа»**: вместо создания отдельного эндпоинта под каждое действие, все пользовательские действия отправляются в одну структуру `user_actions`. Тип действия определяется полем `action`, а данные — полем `payload`.
+
+Это упрощает фронт (один метод на все случаи) и бекенд (одна структура, маршрутизация через сценарии Directual по полю `action`).
+
+### Использование
+
+```typescript
+import fetcher from '@/lib/directual/fetcher';
+
+// Любое пользовательское действие — один метод
+await fetcher.postUserAction('submit_feedback', { text: 'Всё супер', rating: 5 });
+await fetcher.postUserAction('invite_user', { email: 'friend@example.com' });
+await fetcher.postUserAction('change_role', { userId: '123', role: 'admin' });
+```
+
+### Структура запроса
+
+| Поле | Тип | Описание |
+|------|-----|----------|
+| `action` | `string` | Название действия (например `submit_feedback`, `invite_user`) |
+| `payload` | `object` | Произвольные данные действия |
+
+### Настройка в Directual
+
+1. Создать структуру `user_actions` с полями `action` (string) и `payload` (json/object)
+2. Создать эндпоинт `postUserAction` (POST) на структуре `user_actions`
+3. Создать сценарии с триггером на создание записи в `user_actions`, фильтруя по полю `action`
+
+Например: сценарий «Обработка фидбэка» срабатывает при `action == "submit_feedback"` и делает что нужно с данными из `payload`.
 
 ## Загрузка файлов
 

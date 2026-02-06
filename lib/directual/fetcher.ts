@@ -370,6 +370,17 @@ class Fetcher {
   }
 
   // ================================
+  // USER ACTIONS
+  // Единая точка входа для всех пользовательских действий
+  // ================================
+
+  // Отправить пользовательское действие
+  // action — название действия (строка), payload — данные действия (объект)
+  async postUserAction(action: string, payload: Record<string, unknown> = {}, queryParams: Record<string, unknown> = {}): Promise<PostResponse> {
+    return this.post('user_actions', 'postUserActions', { action, payload }, queryParams);
+  }
+
+  // ================================
   // CRUD EXAMPLES
   // Это примеры - замените на свои эндпоинты
   // ================================

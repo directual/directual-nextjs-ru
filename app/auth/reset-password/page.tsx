@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Logo } from '@/components/ui/logo';
-import { APP_VERSION } from '@/lib/version';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
 import fetcher from '@/lib/directual/fetcher';
@@ -56,10 +55,6 @@ export default function ResetPasswordPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
-      </div>
-
-      <div className="absolute bottom-4 left-4">
-        <span className="text-xs text-muted-foreground/50 opacity-20 font-mono">v.{APP_VERSION}</span>
       </div>
 
       <div className="w-full max-w-md space-y-8 p-8 bg-card rounded-lg shadow-xl border">
