@@ -4,7 +4,7 @@
 
 Подрбнее о деталях работы Directual с NextJS: https://readme.directual.com/directual-react-js/directual-+-nextjs#pattern-raboty-s-directual
 
-![nextjs + directual temaplte](https://api.directual.com/fileUploaded/nextjs/bf376864-86b9-4140-9b1d-c83a55425fe0.webp)
+![nextjs + directual temaplte](https://api.directual.com/fileUploaded/nextjs/250c0951-c4e8-458f-8018-8dc481d788a0.jpg)
 
 ## Технологии
 
