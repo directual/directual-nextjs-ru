@@ -124,19 +124,20 @@ NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id_here
    // Пример: отправка уведомления пользователю
    user: "*", // * для бродкаста, или укажите ID юзера
    event: 'alert', 
-   message: {
-     variant: 'default', // 'default' | 'destructive'
-     title: 'Заголовок',
-     description: 'Текст уведомления',
-     icon: 'CheckCircle' // Lucide icon name
-   });
+   message: // валидный JSON
+    {
+      "variant": "default",
+      "title": "Успех",
+      "description": "Проект \"{{payload.title}}\" успешно создан",
+      "icon": "CheckCircle"
+    }
    ```
 
 Поддерживаемые события:
 - **`alert`** — показать уведомление
 - **`refresh`** — обновить данные (вызов `refreshAll()` в DataProvider)
 
-Можно добавлять какие угодно свои события и обработчики!
+**Можно добавлять какие угодно свои события и обработчики!**
 
 ## Структура проекта
 

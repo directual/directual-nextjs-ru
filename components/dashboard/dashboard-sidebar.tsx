@@ -4,14 +4,9 @@ import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Logo } from '@/components/ui/logo';
-import { Home, User, Settings, Moon, LogOut, type LucideIcon } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import menuConfig from '@/config/dashboard-menu.json';
 import { ThemeSelector } from '@/components/dashboard/theme-selector';
-
-// Карта иконок — добавляй сюда при расширении меню
-const iconMap: Record<string, LucideIcon> = {
-  Home, User, Settings, Moon, LogOut,
-};
 
 interface MenuItemConfig {
   id: string;
@@ -30,7 +25,8 @@ interface MenuItemProps {
 
 // Пункт меню
 function MenuItem({ item, isSelected, onClick }: MenuItemProps) {
-  const Icon = iconMap[item.icon];
+  // @ts-ignore - динамический доступ к иконкам
+  const Icon = LucideIcons[item.icon];
   
   const handleClick = () => {
     if (item.type === 'external') {
