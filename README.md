@@ -133,11 +133,13 @@ NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id_here
     }
    ```
 
-Поддерживаемые события:
-- **`alert`** — показать уведомление
-- **`refresh`** — обновить данные (вызов `refreshAll()` в DataProvider)
+Встроенные события (обрабатываются автоматически в `SocketListener`):
+- **`alert`** — показать уведомление (через `window.__showGlobalAlert`)
+- **`refresh`** — обновить данные (через `window.__refreshData` → `refreshAll()` в DataProvider)
 
-**Можно добавлять какие угодно свои события и обработчики!**
+**Можно добавлять какие угодно свои события** — для этого зарегистрируйте обработчик в `SocketListener` или используйте хук `useSocketEvent` (см. ниже).
+
+> **Важно:** не подписывайтесь на `alert` и `refresh` через `useSocketEvent` — они уже обрабатываются в `SocketListener`. Двойная подписка приведёт к дублированию вызовов.
 
 ## Структура проекта
 
@@ -349,11 +351,12 @@ socket.emit('alert', {
 socket.emit('refresh');
 ```
 
-### Прослушивание на клиенте:
+### Прослушивание кастомных событий на клиенте:
 
 ```typescript
 import { useSocketEvent } from '@/hooks/use-socket';
 
+// Для своих кастомных событий — используйте useSocketEvent
 useSocketEvent('custom_event', (payload) => {
   console.log('Получено событие:', payload);
 });

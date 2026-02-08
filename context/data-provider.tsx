@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useSocketEvent } from '@/hooks/use-socket';
 import fetcher from '@/lib/directual/fetcher';
 import { UserProfile, ApiResponse } from '@/types';
 
@@ -120,11 +119,6 @@ export function DataProvider({ children }: DataProviderProps) {
       clearData();
     }
   }, [user, refreshAll, clearData]);
-
-  // Подписка на сокет-события
-  useSocketEvent('refresh', () => {
-    refreshAll(true);
-  });
 
   // Обновление при возврате на вкладку браузера
   useEffect(() => {
