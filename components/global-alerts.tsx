@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { X, Info, CheckCircle, AlertTriangle, AlertCircle, Bell } from 'lucide-react';
+import { DynamicIcon, type IconName } from 'lucide-react/dynamic';
+import { X } from 'lucide-react';
+import { toKebab } from '@/lib/utils';
 
 interface AlertData {
   id?: string | number;
@@ -28,7 +30,6 @@ export function GlobalAlerts() {
     
     // Дедупликация
     setAlerts(prev => {
-      // Проверяем, есть ли идентичный алерт (по title и description)
       const isDuplicate = prev.some(a => 
         a.title === alertData.title && 
         a.description === alertData.description
@@ -51,22 +52,6 @@ export function GlobalAlerts() {
   // Закрыть алерт вручную
   const closeAlert = (id: string | number) => {
     setAlerts(prev => prev.filter(a => a.id !== id));
-  };
-
-  // Карта иконок для алертов
-  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-    Info,
-    CheckCircle,
-    AlertTriangle,
-    AlertCircle,
-    Bell,
-  };
-
-  const getIcon = (iconName?: string) => {
-    if (!iconName) return null;
-    const Icon = iconMap[iconName];
-    if (Icon) return <Icon className="h-4 w-4" />;
-    return null;
   };
 
   // Экспортируем функцию добавления алерта глобально
@@ -96,8 +81,12 @@ export function GlobalAlerts() {
             <X className="h-4 w-4" />
           </button>
 
-          {/* Иконка */}
-          {alert.icon && getIcon(alert.icon)}
+          {/* Иконка — lazy-загрузка по имени */}
+          {alert.icon && (
+            <Suspense fallback={<span className="h-4 w-4" />}>
+              <DynamicIcon name={toKebab(alert.icon) as IconName} className="h-4 w-4" />
+            </Suspense>
+          )}
 
           {/* Заголовок */}
           {alert.title && <AlertTitle>{alert.title}</AlertTitle>}

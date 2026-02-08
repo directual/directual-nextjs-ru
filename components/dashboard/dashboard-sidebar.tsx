@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { Logo } from '@/components/ui/logo';
-import * as LucideIcons from 'lucide-react';
+import { DynamicIcon, type IconName } from 'lucide-react/dynamic';
+import { toKebab } from '@/lib/utils';
 import menuConfig from '@/config/dashboard-menu.json';
 import { ThemeSelector } from '@/components/dashboard/theme-selector';
 
@@ -25,9 +26,6 @@ interface MenuItemProps {
 
 // Пункт меню
 function MenuItem({ item, isSelected, onClick }: MenuItemProps) {
-  // @ts-ignore - динамический доступ к иконкам
-  const Icon = LucideIcons[item.icon];
-  
   const handleClick = () => {
     if (item.type === 'external') {
       window.open(item.route, '_blank', 'noopener,noreferrer');
@@ -47,7 +45,9 @@ function MenuItem({ item, isSelected, onClick }: MenuItemProps) {
         }
       `}
     >
-      {Icon && <Icon size={20} className="flex-shrink-0" />}
+      <Suspense fallback={<span className="h-5 w-5 flex-shrink-0" />}>
+        <DynamicIcon name={toKebab(item.icon) as IconName} size={20} className="flex-shrink-0" />
+      </Suspense>
       <span className="text-sm font-medium whitespace-nowrap">
         {item.label}
       </span>
