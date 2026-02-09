@@ -75,6 +75,7 @@ class Fetcher {
   }
 
   // Проверка сессии при 403 ошибке
+  // Использует встроенный auth.check() из directual-api вместо кастомной структуры
   async handle403Error(): Promise<boolean> {
     // Предотвращаем рекурсию
     if (this.isCheckingSession) {
@@ -89,12 +90,12 @@ class Fetcher {
         return false;
       }
 
-      const checkResult = await this.checkSessionInternal();
-      
-      // Если checkSession вернул пустой массив - сессия протухла
-      if (checkResult.success && Array.isArray(checkResult.data) && checkResult.data.length === 0) {
+      // auth.check() → GET /good/api/v4/auth/check → { result: boolean, ... }
+      const checkResult = await api.auth.check(sessionID);
+
+      // Если result === false — сессия протухла
+      if (!checkResult || !checkResult.result) {
         console.warn('[Fetcher] ⚠️ Сессия протухла, отправляем событие session-expired');
-        // Отправляем событие для разлогинивания
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('session-expired'));
         }
@@ -103,29 +104,13 @@ class Fetcher {
       return false; // Сессия валидна
     } catch (err) {
       console.error('[Fetcher] ✗ Ошибка при проверке сессии:', err);
-      return false;
+      // При ошибке сети/API считаем сессию протухшей — безопаснее разлогинить
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('session-expired'));
+      }
+      return true;
     } finally {
       this.isCheckingSession = false;
-    }
-  }
-
-  // Внутренний метод проверки сессии без обработки 403
-  async checkSessionInternal(queryParams: Record<string, unknown> = {}): Promise<GetResponse> {
-    try {
-      const sessionID = await this.getSessionID();
-      const response = await api.structure('WebUserSession').getData('checkSession', { sessionID, ...queryParams });
-      return {
-        success: true,
-        data: response.payload || [],
-        pageInfo: response.pageInfo || null,
-      };
-    } catch (error: unknown) {
-      const err = error as { response?: { status?: number; data?: { msg?: string } }; message?: string };
-      console.error('Fetcher checkSessionInternal error:', error);
-      return {
-        success: false,
-        error: err.response?.data?.msg || err.message || 'Ошибка запроса',
-      };
     }
   }
 
@@ -219,9 +204,19 @@ class Fetcher {
   // AUTH METHODS
   // ================================
 
-  // Проверка сессии (публичный метод)
-  async checkSession(queryParams: Record<string, unknown> = {}): Promise<GetResponse> {
-    return this.get('WebUserSession', 'checkSession', queryParams, true);
+  // Проверка сессии (публичный метод, через встроенный auth.check)
+  async checkSession(): Promise<{ success: boolean; authorized: boolean }> {
+    try {
+      const sessionID = await this.getSessionID();
+      if (!sessionID) {
+        return { success: true, authorized: false };
+      }
+      const checkResult = await api.auth.check(sessionID);
+      return { success: true, authorized: !!(checkResult && checkResult.result) };
+    } catch (error) {
+      console.error('[Fetcher] checkSession error:', error);
+      return { success: false, authorized: false };
+    }
   }
 
   // Запросить magic-link

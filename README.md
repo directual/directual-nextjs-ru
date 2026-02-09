@@ -62,7 +62,6 @@ NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id_here
 
 | Эндпоинт | Метод | Структура | Назначение |
 |----------|-------|-----------|------------|
-| `checkSession` | GET | `WebUserSession` | Проверка активной сессии |
 | `magicLinkRequest` | POST | `magic_link_link_request` | Запрос magic link по email |
 | `resetPass` | POST | `ResetPasswordRequest` | Запрос ссылки для сброса пароля |
 | `resetPassword` | POST | `reset_password_inputs` | Установка нового пароля (с токеном) |

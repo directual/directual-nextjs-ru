@@ -38,11 +38,20 @@ declare module 'directual-api' {
     nid?: string;
   }
 
+  // Результат auth.check() — встроенная проверка сессии через /good/api/v4/auth/check
+  export interface DirectualCheckResult {
+    result: boolean;
+    token?: string;
+    username?: string;
+    role?: string;
+  }
+
   export interface DirectualAuth {
     login(email: string, password: string): Promise<DirectualAuthToken>;
     register(email: string, password: string, data?: Record<string, unknown>): Promise<DirectualAuthToken>;
     logout(sessionID: string): Promise<void>;
-    check(sessionID: string): Promise<DirectualAuthToken>;
+    check(sessionID: string): Promise<DirectualCheckResult>;
+    isAuthorize(sid: string, cb: (isAuth: boolean, token?: DirectualAuthToken) => void): void;
   }
 
   export default class Directual {

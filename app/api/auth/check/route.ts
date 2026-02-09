@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import serverApi from '@/lib/directual/server-client';
 
-// Проверка текущей сессии
+// Проверка текущей сессии через встроенный auth.check() из directual-api
 export async function GET(request: NextRequest) {
   try {
     // Получаем sessionID из cookie
@@ -14,12 +14,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Проверяем сессию в Directual через структуру WebUserSession
-    const checkResult = await serverApi.structure('WebUserSession').getData('checkSession', { sessionID });
+    // Проверяем сессию через встроенный метод directual-api
+    // auth.check() → GET /good/api/v4/auth/check → { result, token, username, role }
+    const checkResult = await serverApi.auth.check(sessionID);
 
-    // checkSession возвращает только sessionId — подтверждение валидности сессии
-    if (checkResult && checkResult.payload && Array.isArray(checkResult.payload) && checkResult.payload.length > 0) {
-      // Дёргаем профиль чтобы получить данные юзера (email, имя и т.д.)
+    if (checkResult && checkResult.result) {
+      // Сессия валидна — дёргаем профиль для полных данных юзера (имя, аватар и т.д.)
       let profileData: Record<string, unknown> = {};
       try {
         const profileResult = await serverApi.structure('WebUser').getData('profile', { sessionID });
@@ -30,14 +30,14 @@ export async function GET(request: NextRequest) {
         console.error('[auth/check] Ошибка получения профиля:', profileErr);
       }
       
-      // id в Directual = email юзера
-      const userId = (profileData.id || profileData.user_id || profileData.email || '') as string;
+      // Берём данные из профиля, а username/role фоллбечим из auth.check
+      const userId = (profileData.id || profileData.user_id || profileData.email || checkResult.username || '') as string;
       const user = {
         id: userId,
-        username: (profileData.username || userId || '') as string,
-        email: (profileData.email || userId || '') as string,
+        username: (profileData.username || checkResult.username || userId || '') as string,
+        email: (profileData.email || checkResult.username || userId || '') as string,
         name: (profileData.name || profileData.firstName || profileData.first_name || '') as string,
-        role: (profileData.role || 'user') as string,
+        role: (profileData.role || checkResult.role || 'user') as string,
         avatar: (profileData.userpic || profileData.avatar || null) as string | null,
       };
       
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         user,
       });
     } else {
-      // Сессия истекла (пустой массив) — удаляем cookie
+      // Сессия истекла — auth.check вернул result: false — удаляем cookie
       const response = NextResponse.json(
         { success: false, error: 'Сессия истекла' },
         { status: 401 }

@@ -16,24 +16,21 @@ export async function POST(request: NextRequest) {
     // Вызываем magic эндпоинт без sessionID (публичный)
     const magicResult = await serverApi.structure('magic').setData('magic', { token }, {});
 
-    // Проверяем что result === "ok" и есть token (который на самом деле session)
+    // Проверяем что result === "ok" и есть token (который на самом деле sessionID)
     if (magicResult && magicResult.result === 'ok' && magicResult.token) {
       const sessionID = magicResult.token;
       
-      // Получаем данные пользователя через checkSession
-      const checkResult = await serverApi.structure('WebUserSession').getData('checkSession', { sessionID });
+      // Валидируем сессию и получаем данные юзера через встроенный auth.check()
+      const checkResult = await serverApi.auth.check(sessionID);
 
-      if (checkResult && checkResult.payload && Array.isArray(checkResult.payload) && checkResult.payload.length > 0) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const userData = checkResult.payload[0] as any;
-        
+      if (checkResult && checkResult.result) {
         const response = NextResponse.json({
           success: true,
           user: {
-            id: userData.id || userData.nid || '',
-            username: userData.username || userData.email || '',
-            email: userData.email || userData.username || '',
-            role: userData.role || 'user',
+            id: checkResult.username || '',
+            username: checkResult.username || '',
+            email: checkResult.username || '',
+            role: checkResult.role || 'user',
             avatar: null,
           },
         });
@@ -49,7 +46,7 @@ export async function POST(request: NextRequest) {
 
         return response;
       } else {
-        console.error('[auth/magic] Не удалось получить данные пользователя');
+        console.error('[auth/magic] Сессия невалидна после magic-link');
         return NextResponse.json(
           { success: false, error: 'Не удалось получить данные пользователя' },
           { status: 500 }
