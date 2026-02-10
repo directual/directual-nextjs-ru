@@ -10,9 +10,11 @@ if (!APP_ID) {
 
 // Инициализация Directual API клиента
 // apiHost: '/' использует Next.js rewrites для проксирования к https://api.directual.com
+// streamApiHost: '/' — стриминг (SSE) тоже через проксю, Next.js перенаправит на api.alfa.directual.com
 const api = new Directual({ 
   apiHost: '/',
-  appID: APP_ID as string
+  appID: APP_ID as string,
+  streamApiHost: '/',
 });
 
 export default api;

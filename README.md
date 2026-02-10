@@ -167,8 +167,8 @@ context/
 
 lib/
 ├── directual/         # Directual API интеграция
-│   ├── client.ts      # API client
-│   ├── fetcher.ts     # Wrapper с методами
+│   ├── client.ts      # API client (apiHost + streamApiHost)
+│   ├── fetcher.ts     # Wrapper с методами (get/post/stream/upload)
 │   └── socket.ts      # Socket.IO connection
 └── utils.ts           # Утилиты
 
@@ -248,6 +248,69 @@ if (result.success) {
   console.log(result.data);
 }
 ```
+
+## Стриминг (SSE)
+
+Фетчер поддерживает стриминг через Server-Sent Events — `fetcher.stream()`. Под капотом используется `setStream` из `directual-api@1.5.0+`. Запросы идут через `/good/api/v5/stream/{structure}/{endpoint}` (вместо `/data/`), проксируются на `api.alfa.directual.com`.
+
+### Использование
+
+```typescript
+import fetcher from '@/lib/directual/fetcher';
+
+const result = await fetcher.stream(
+  'my_structure',      // структура
+  'my_endpoint',       // эндпоинт
+  { prompt: 'hello' }, // тело запроса
+  {
+    onData: (data, event) => {
+      // event: 'start' | 'chunk' | 'done'
+      // data — автоматически распаршен из JSON
+      console.log(event, data);
+    },
+    onError: (error) => {
+      console.error('Ошибка стрима:', error);
+    },
+    onComplete: () => {
+      console.log('Стрим завершён');
+    },
+  },
+);
+
+// Результат содержит управление стримом
+if (result.success && result.stream) {
+  // Прервать стрим в любой момент
+  result.stream.abort();
+
+  // Или дождаться завершения
+  await result.stream.promise;
+}
+```
+
+### Добавление стрим-эндпоинта в Fetcher
+
+```typescript
+// lib/directual/fetcher.ts
+
+async streamChat(
+  payload: Record<string, unknown>,
+  callbacks: StreamCallbacks,
+  queryParams: Record<string, unknown> = {}
+): Promise<StreamResult> {
+  return this.stream('chat_messages', 'streamChat', payload, callbacks, queryParams);
+}
+```
+
+### Сигнатура `fetcher.stream()`
+
+| Параметр | Тип | Описание |
+|----------|-----|----------|
+| `structure` | `string` | Название структуры Directual |
+| `endpoint` | `string` | Название эндпоинта |
+| `payload` | `object` | Тело POST-запроса |
+| `callbacks` | `{ onData, onError?, onComplete? }` | Коллбеки для приёма данных |
+| `params` | `object` | Дополнительные query-параметры (опционально) |
+| `silent` | `boolean` | Не показывать алерт при ошибке (опционально) |
 
 ## User Actions — единая точка входа для действий
 

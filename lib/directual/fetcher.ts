@@ -10,6 +10,21 @@ interface PostResponse<T = unknown> extends ApiResponse<T> {
   status?: string | null;
 }
 
+// Коллбеки для SSE стриминга
+export interface StreamCallbacks {
+  onData: (data: unknown, event: string) => void; // event: 'start' | 'chunk' | 'done'
+  onError?: (error: Error) => void;
+  onComplete?: () => void;
+}
+
+// Результат запуска стрима
+export interface StreamResult {
+  success: boolean;
+  stream: { abort: () => void; promise: Promise<void> } | null;
+  error?: string;
+  sessionExpired?: boolean;
+}
+
 // Универсальный Fetcher для работы с Directual API
 // SessionID хранится в HTTP Only cookie, получаем через API endpoint
 class Fetcher {
@@ -196,6 +211,84 @@ class Fetcher {
       return {
         success: false,
         error: err.response?.data?.msg || err.message || 'Ошибка запроса',
+      };
+    }
+  }
+
+  // ================================
+  // SSE STREAM
+  // POST стрим через Server-Sent Events
+  // Endpoint: /good/api/v5/stream/{structure}/{endpoint}
+  // ================================
+
+  // Стрим-запрос — запускает SSE соединение, данные приходят через коллбеки
+  // Возвращает управление стримом: abort() для отмены, promise для ожидания
+  async stream(
+    structure: string,
+    endpoint: string,
+    payload: Record<string, unknown> = {},
+    callbacks: StreamCallbacks,
+    params: Record<string, unknown> = {},
+    silent = false
+  ): Promise<StreamResult> {
+    try {
+      const sessionID = await this.getSessionID();
+
+      const streamResponse = api.structure(structure).setStream(
+        endpoint,
+        payload,
+        { sessionID, ...params },
+        {
+          onData: callbacks.onData,
+          onError: (error: Error) => {
+            console.error(`Fetcher STREAM error [${structure}.${endpoint}]:`, error);
+            if (!silent) {
+              this.showError(error.message || 'Ошибка стриминга', undefined, `${structure}.${endpoint}`);
+            }
+            if (callbacks.onError) {
+              callbacks.onError(error);
+            }
+          },
+          onComplete: () => {
+            if (callbacks.onComplete) {
+              callbacks.onComplete();
+            }
+          },
+        }
+      );
+
+      return {
+        success: true,
+        stream: streamResponse,
+      };
+    } catch (error: unknown) {
+      const err = error as { response?: { status?: number; data?: { msg?: string } }; message?: string };
+      const statusCode = err.response?.status;
+
+      // Проверяем 403 — может сессия протухла
+      if (statusCode === 403) {
+        const sessionExpired = await this.handle403Error();
+        if (sessionExpired) {
+          return {
+            success: false,
+            stream: null,
+            error: 'Сессия истекла',
+            sessionExpired: true,
+          };
+        }
+      }
+
+      // Показываем ошибку если не silent
+      if (!silent && statusCode && statusCode >= 400) {
+        const errorMsg = err.response?.data?.msg || err.message || 'Ошибка стриминга';
+        this.showError(errorMsg, statusCode, `${structure}.${endpoint}`);
+      }
+
+      console.error(`Fetcher STREAM init error [${structure}.${endpoint}]:`, error);
+      return {
+        success: false,
+        stream: null,
+        error: err.response?.data?.msg || err.message || 'Ошибка стриминга',
       };
     }
   }

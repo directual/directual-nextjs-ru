@@ -15,6 +15,11 @@ const nextConfig = {
   
   async rewrites() {
     return [
+      // SSE стриминг идёт на отдельный хост (alfa), ставим перед общим правилом
+      {
+        source: '/good/api/v5/stream/:path*',
+        destination: 'https://api.alfa.directual.com/good/api/v5/stream/:path*',
+      },
       {
         source: '/good/:path*',
         destination: 'https://api.directual.com/good/:path*',

@@ -4,6 +4,7 @@ declare module 'directual-api' {
   export interface DirectualConfig {
     apiHost: string;
     appID: string;
+    streamApiHost?: string; // Хост для SSE стриминга, дефолт: https://api.alfa.directual.com
   }
   
   export interface DirectualResponse {
@@ -18,6 +19,19 @@ declare module 'directual-api' {
     token?: string; // sessionID при magic-link авторизации
   }
 
+  // Коллбеки для SSE стриминга
+  export interface StreamCallbacks {
+    onData: (data: unknown, event: string) => void; // event: 'start' | 'chunk' | 'done'
+    onError?: (error: Error) => void;
+    onComplete?: () => void;
+  }
+
+  // Ответ стрим-запроса — управление потоком
+  export interface StreamResponse {
+    abort: () => void;       // Прервать стрим
+    promise: Promise<void>;  // Ждать завершения
+  }
+
   export interface DirectualStructure {
     getData(
       endpoint: string,
@@ -29,6 +43,14 @@ declare module 'directual-api' {
       payload?: Record<string, unknown>,
       params?: Record<string, unknown>
     ): Promise<DirectualResponse>;
+
+    // SSE стрим — POST через /good/api/v5/stream/{structure}/{endpoint}
+    setStream(
+      endpoint: string,
+      payload: Record<string, unknown>,
+      params: Record<string, unknown>,
+      callbacks: StreamCallbacks
+    ): StreamResponse;
   }
 
   export interface DirectualAuthToken {
