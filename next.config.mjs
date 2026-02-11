@@ -14,12 +14,9 @@ const nextConfig = {
   },
   
   async rewrites() {
+    // Стрим-запросы обрабатывает middleware → Route Handler в app/api/stream-proxy/
+    // Обычные API-запросы — rewrite на directual.com
     return [
-      // SSE стриминг идёт на отдельный хост (alfa), ставим перед общим правилом
-      {
-        source: '/good/api/v5/stream/:path*',
-        destination: 'https://api.alfa.directual.com/good/api/v5/stream/:path*',
-      },
       {
         source: '/good/:path*',
         destination: 'https://api.directual.com/good/:path*',
@@ -60,7 +57,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'", // unsafe-inline для динамических стилей
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              "connect-src 'self' https://api.directual.com wss://api.directual.com", // Directual API + WebSocket
+              "connect-src 'self' https://api.directual.com https://api.alfa.directual.com wss://api.directual.com", // Directual API + SSE стриминг + WebSocket
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

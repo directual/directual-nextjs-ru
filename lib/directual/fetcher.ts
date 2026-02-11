@@ -469,6 +469,21 @@ class Fetcher {
   }
 
   // ================================
+  // STREAMING METHODS
+  // ================================
+
+  // Стрим-запрос к структуре streaming / endpoint stream
+  // Отправляет { prompt } и стримит ответ через SSE
+  async streamPrompt(
+    prompt: string,
+    callbacks: StreamCallbacks,
+    params: Record<string, unknown> = {},
+    silent = false
+  ): Promise<StreamResult> {
+    return this.stream('streaming', 'stream', { prompt }, callbacks, params, silent);
+  }
+
+  // ================================
   // CRUD EXAMPLES
   // Это примеры - замените на свои эндпоинты
   // ================================

@@ -1,6 +1,6 @@
 # Next.js + Directual Starter Template
 
-Стартовый шаблон с авторизацией (magic link, reset password), dashboard, WebSocket подключением к Directual.
+Стартовый шаблон с авторизацией (magic link, reset password), dashboard, WebSocket подключением и SSE стримингом к Directual.
 
 Подрбнее о деталях работы Directual с NextJS: https://readme.directual.com/directual-react-js/directual-+-nextjs#pattern-raboty-s-directual
 
@@ -13,6 +13,7 @@
 - **Tailwind CSS** — Utility-first CSS фреймворк
 - **shadcn/ui** — Компоненты на базе Radix UI
 - **Socket.IO** — Real-time WebSocket соединение
+- **SSE (Server-Sent Events)** — Стриминг ответов от AI без буферизации
 - **TypeScript** — Типизация
 
 ## Quick Start
@@ -144,10 +145,12 @@ NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id_here
 
 ```
 app/
-├── api/auth/          # API routes для авторизации
+├── api/
+│   ├── auth/          # API routes для авторизации
+│   └── good/api/v5/stream/[...path]/  # SSE стриминг прокси (без буферизации)
 ├── auth/              # Страницы авторизации (login, magic, reset)
 ├── dashboard/         # Защищенные страницы dashboard
-│   ├── page.tsx       # Home
+│   ├── page.tsx       # Home с тестовой формой стриминга
 │   ├── profile/       # Профиль пользователя
 │   └── settings/      # Настройки
 ├── layout.tsx         # Root layout с провайдерами
@@ -251,13 +254,67 @@ if (result.success) {
 
 ## Стриминг (SSE)
 
-Фетчер поддерживает стриминг через Server-Sent Events — `fetcher.stream()`. Под капотом используется `setStream` из `directual-api@1.5.0+`. Запросы идут через `/good/api/v5/stream/{structure}/{endpoint}` (вместо `/data/`), проксируются на `api.alfa.directual.com`.
+Темплейт поддерживает реал-тайм стриминг через Server-Sent Events. Под капотом: Route Handler проксирует запросы на `api.alfa.directual.com` без буферизации.
 
-### Использование
+### Архитектура стриминга
+
+```
+Browser → /api/good/api/v5/stream/* → Route Handler → api.alfa.directual.com
+                                            ↓
+                                    ReadableStream (без буферизации)
+```
+
+**Почему не rewrites?** Next.js rewrites буферизируют весь ответ и отдают клиенту только когда upstream закроет соединение. Стриминг через rewrite **не работает**.
+
+**Решение:** Route Handler в `app/api/good/api/v5/stream/[...path]/route.ts` пробрасывает `ReadableStream` напрямую:
+
+```typescript
+return new Response(response.body, {
+  headers: {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+  },
+});
+```
+
+### Готовый метод: `fetcher.streamPrompt()`
+
+Для структуры `streaming` / эндпоинта `stream`:
 
 ```typescript
 import fetcher from '@/lib/directual/fetcher';
 
+const result = await fetcher.streamPrompt('Привет!', {
+  onData: (data: unknown) => {
+    // Парсим Anthropic SSE формат
+    const chunk = data as { content?: string };
+    if (!chunk || typeof chunk.content !== 'string') return;
+
+    const line = chunk.content;
+    if (!line.startsWith('data: ')) return;
+
+    const parsed = JSON.parse(line.slice(6));
+    if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
+      // Текст от модели — выводим посимвольно
+      console.log(parsed.delta.text);
+    }
+  },
+  onError: (error) => console.error('Ошибка:', error),
+  onComplete: () => console.log('Готово'),
+});
+
+// Остановить стрим
+if (result.success && result.stream) {
+  result.stream.abort();
+}
+```
+
+### Универсальный метод: `fetcher.stream()`
+
+Для любой структуры/эндпоинта:
+
+```typescript
 const result = await fetcher.stream(
   'my_structure',      // структура
   'my_endpoint',       // эндпоинт
@@ -268,12 +325,8 @@ const result = await fetcher.stream(
       // data — автоматически распаршен из JSON
       console.log(event, data);
     },
-    onError: (error) => {
-      console.error('Ошибка стрима:', error);
-    },
-    onComplete: () => {
-      console.log('Стрим завершён');
-    },
+    onError: (error) => console.error('Ошибка:', error),
+    onComplete: () => console.log('Стрим завершён'),
   },
 );
 
