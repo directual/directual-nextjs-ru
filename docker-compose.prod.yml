@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: 1cable-container-registry.registry.twcstorage.ru/1cable-app:latest
+    image: ${DOCKER_IMAGE:-nextjs-app:latest}
     ports:
       - "3000:3000"
     environment:

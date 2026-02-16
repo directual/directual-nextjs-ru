@@ -524,10 +524,10 @@ docker-compose down
 
 Выберите облачный провайдер для хостинга Docker-контейнеров:
 
-#### 1. Timeweb Cloud (Россия, рубли)
+#### 1. Любой VPS (Россия / международный)
 
 ```bash
-# 1. Создать сервер на Timeweb Cloud (Ubuntu 22.04)
+# 1. Арендовать VPS (Ubuntu 22.04) у любого провайдера
 # 2. Подключиться по SSH
 ssh root@your-server-ip
 
@@ -548,8 +548,6 @@ docker-compose up -d
 
 # 7. Настроить nginx reverse proxy (опционально)
 ```
-
-**Цена:** от ~300₽/мес за VPS
 
 #### 2. Railway.app (международный, карта любая)
 
@@ -612,7 +610,7 @@ services:
 
 #### 5. Selectel (Россия, рубли)
 
-Аналогично Timeweb - арендуете VPS, ставите Docker, деплоите через docker-compose.
+Арендуете VPS, ставите Docker, деплоите через docker-compose.
 
 **Цена:** от ~250₽/мес
 
