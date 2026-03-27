@@ -17,10 +17,18 @@ export interface StreamCallbacks {
   onComplete?: () => void;
 }
 
-// Результат запуска стрима
+// Результат запуска стрима (setStream)
 export interface StreamResult {
   success: boolean;
   stream: { abort: () => void; promise: Promise<void> } | null;
+  error?: string;
+  sessionExpired?: boolean;
+}
+
+// Результат запуска стрима (initStream) — с streamId
+export interface InitStreamResult {
+  success: boolean;
+  stream: { abort: () => void; promise: Promise<void>; streamId: Promise<string> } | null;
   error?: string;
   sessionExpired?: boolean;
 }
@@ -294,6 +302,79 @@ class Fetcher {
   }
 
   // ================================
+  // SSE INIT STREAM
+  // Двухфазный стрим: POST init → streamId, GET subscribe → SSE
+  // ================================
+
+  async initStream(
+    structure: string,
+    endpoint: string,
+    payload: Record<string, unknown> = {},
+    callbacks: StreamCallbacks,
+    params: Record<string, unknown> = {},
+    silent = false
+  ): Promise<InitStreamResult> {
+    try {
+      const sessionID = await this.getSessionID();
+
+      const streamResponse = api.structure(structure).initStream(
+        endpoint,
+        payload,
+        { sessionID, ...params },
+        {
+          onData: callbacks.onData,
+          onError: (error: Error) => {
+            console.error(`Fetcher INIT_STREAM error [${structure}.${endpoint}]:`, error);
+            if (!silent) {
+              this.showError(error.message || 'Ошибка стриминга', undefined, `${structure}.${endpoint}`);
+            }
+            if (callbacks.onError) {
+              callbacks.onError(error);
+            }
+          },
+          onComplete: () => {
+            if (callbacks.onComplete) {
+              callbacks.onComplete();
+            }
+          },
+        }
+      );
+
+      return {
+        success: true,
+        stream: streamResponse,
+      };
+    } catch (error: unknown) {
+      const err = error as { response?: { status?: number; data?: { msg?: string } }; message?: string };
+      const statusCode = err.response?.status;
+
+      if (statusCode === 403) {
+        const sessionExpired = await this.handle403Error();
+        if (sessionExpired) {
+          return {
+            success: false,
+            stream: null,
+            error: 'Сессия истекла',
+            sessionExpired: true,
+          };
+        }
+      }
+
+      if (!silent && statusCode && statusCode >= 400) {
+        const errorMsg = err.response?.data?.msg || err.message || 'Ошибка стриминга';
+        this.showError(errorMsg, statusCode, `${structure}.${endpoint}`);
+      }
+
+      console.error(`Fetcher INIT_STREAM init error [${structure}.${endpoint}]:`, error);
+      return {
+        success: false,
+        stream: null,
+        error: err.response?.data?.msg || err.message || 'Ошибка стриминга',
+      };
+    }
+  }
+
+  // ================================
   // AUTH METHODS
   // ================================
 
@@ -472,8 +553,7 @@ class Fetcher {
   // STREAMING METHODS
   // ================================
 
-  // Стрим-запрос к структуре streaming / endpoint stream
-  // Отправляет { prompt } и стримит ответ через SSE
+  // Стрим-запрос к структуре streaming / endpoint stream (старый setStream)
   async streamPrompt(
     prompt: string,
     callbacks: StreamCallbacks,
@@ -481,6 +561,16 @@ class Fetcher {
     silent = false
   ): Promise<StreamResult> {
     return this.stream('streaming', 'stream', { prompt }, callbacks, params, silent);
+  }
+
+  // Стрим-запрос через initStream (новый двухфазный механизм)
+  async initStreamPrompt(
+    prompt: string,
+    callbacks: StreamCallbacks,
+    params: Record<string, unknown> = {},
+    silent = false
+  ): Promise<InitStreamResult> {
+    return this.initStream('streaming', 'stream', { prompt }, callbacks, params, silent);
   }
 
   // ================================
