@@ -1,187 +1,187 @@
 # Next.js + Directual Starter Template
 
-Стартовый шаблон с авторизацией (magic link, reset password), dashboard, WebSocket подключением и SSE стримингом к Directual.
+A starter template with authentication (magic link, password reset), dashboard, WebSocket connection, and SSE streaming to Directual.
 
-Подрбнее о деталях работы Directual с NextJS: https://readme.directual.com/directual-react-js/directual-+-nextjs#pattern-raboty-s-directual
+More details on how Directual works with Next.js: https://readme.directual.com/directual-react-js/directual-+-nextjs#pattern-raboty-s-directual
 
-![nextjs + directual temaplte](https://api.directual.com/fileUploaded/nextjs/250c0951-c4e8-458f-8018-8dc481d788a0.jpg)
+![nextjs + directual template](https://api.directual.com/fileUploaded/nextjs/250c0951-c4e8-458f-8018-8dc481d788a0.jpg)
 
-## Технологии
+## Tech Stack
 
-- **Next.js 16** — React фреймворк с App Router
-- **Directual** — Backend-as-a-Service платформа
-- **Tailwind CSS** — Utility-first CSS фреймворк
-- **shadcn/ui** — Компоненты на базе Radix UI
-- **Socket.IO** — Real-time WebSocket соединение
-- **SSE (Server-Sent Events)** — Стриминг ответов от AI без буферизации
-- **TypeScript** — Типизация
+- **Next.js 16** — React framework with App Router
+- **Directual** — Backend-as-a-Service platform
+- **Tailwind CSS** — Utility-first CSS framework
+- **shadcn/ui** — Components built on Radix UI
+- **Socket.IO** — Real-time WebSocket connection
+- **SSE (Server-Sent Events)** — Unbuffered streaming of AI responses
+- **TypeScript** — Static typing
 
 ## Quick Start
 
 ```bash
-# 1. Клонировать репозиторий
+# 1. Clone the repository
 
-# 2. Установить зависимости
+# 2. Install dependencies
 npm install
 
-# 3. Создать .env.local (см. ниже)
+# 3. Create .env.local (see below)
 
-# 4. Запустить dev-сервер
+# 4. Start the dev server
 npm run dev
 ```
 
-Откройте [http://localhost:3002](http://localhost:3002)
+Open [http://localhost:3002](http://localhost:3002)
 
-## Брендинг
+## Branding
 
-Замените шаблонные логотипы и иконки на свои:
+Replace the placeholder logos and icons with your own:
 
-- **`components/ui/logo.tsx`** — SVG-логотип приложения (используется в sidebar и на страницах авторизации). Содержит варианты: полный, маленький и очень маленький (для свёрнутого sidebar)
+- **`components/ui/logo.tsx`** — App SVG logo (used in sidebar and auth pages). Contains variants: full, small, and extra small (for collapsed sidebar)
 - **`public/icon.png`** — Favicon
-- **`public/icon-192.png`** — PWA иконка 192x192
-- **`public/icon-512.png`** — PWA иконка 512x512
+- **`public/icon-192.png`** — PWA icon 192x192
+- **`public/icon-512.png`** — PWA icon 512x512
 - **`public/apple-icon.png`** — Apple Touch Icon 180x180
-- **`public/opengraph-image.png`** — OG-картинка для соцсетей (1200x630)
-- **`public/manifest.json`** — Название и описание PWA
+- **`public/opengraph-image.png`** — OG image for social media (1200x630)
+- **`public/manifest.json`** — PWA name and description
 
-## Переменные окружения
+## Environment Variables
 
-Создайте `.env.local`:
+Create `.env.local`:
 
 ```env
 # Directual API
 NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id_here
 ```
 
-`your_app_id_here` — идем в приложение Directual => API => API keys, копируем (или создаем) `APP_ID`
+`your_app_id_here` — go to your Directual app => API => API Keys, copy (or create) the `APP_ID`
 
-## Чеклист настройки Directual
+## Directual Setup Checklist
 
-### Необходимые эндпоинты
+### Required Endpoints
 
-Все механизмы шаблона (авторизация, профиль, загрузка файлов) работают через эндпоинты Directual API. Шаблон использует следующие эндпоинты (см. `lib/directual/fetcher.ts`):
+All template features (auth, profile, file uploads) work through Directual API endpoints. The template uses the following endpoints (see `lib/directual/fetcher.ts`):
 
-| Эндпоинт | Метод | Структура | Назначение |
-|----------|-------|-----------|------------|
-| `magicLinkRequest` | POST | `magic_link_link_request` | Запрос magic link по email |
-| `resetPass` | POST | `ResetPasswordRequest` | Запрос ссылки для сброса пароля |
-| `resetPassword` | POST | `reset_password_inputs` | Установка нового пароля (с токеном) |
-| `profile` | GET/POST | `WebUser` | Чтение/обновление профиля |
-| `postUserAction` | POST | `user_actions` | Единая точка входа для пользовательских действий |
-| `uploadFiles` | POST | `file_links` | Загрузка файлов |
+| Endpoint | Method | Structure | Purpose |
+|----------|--------|-----------|---------|
+| `magicLinkRequest` | POST | `magic_link_link_request` | Request a magic link by email |
+| `resetPass` | POST | `ResetPasswordRequest` | Request a password reset link |
+| `resetPassword` | POST | `reset_password_inputs` | Set a new password (with token) |
+| `profile` | GET/POST | `WebUser` | Read/update profile |
+| `postUserAction` | POST | `user_actions` | Single entry point for user actions |
+| `uploadFiles` | POST | `file_links` | File uploads |
 
-> **В новом базовом шаблоне приложения Directual (после 7 февраля 2026 года) все необходимые эндпоинты уже созданы.** Если вы создали приложение на актуальном шаблоне — всё готово из коробки, просто укажите APP_ID.
+> **In the new base Directual app template (after February 7, 2026) all required endpoints are already created.** If you created your app on the current template — everything works out of the box, just set the APP_ID.
 >
-> Если вы работаете со старым приложением — убедитесь, что все перечисленные эндпоинты существуют и настроены. Без нужного эндпоинта соответствующий механизм работать не будет.
+> If you're working with an older app — make sure all listed endpoints exist and are configured. Without a required endpoint, the corresponding feature won't work.
 
-### Получить APP_ID
+### Get APP_ID
 
-1. Зайти в личный кабинет [Directual](https://my.directual.com)
-2. Открыть ваше приложение → **API** → **API Keys**
-3. Скопировать **APP_ID** в `.env.local`
+1. Log in to [Directual](https://my.directual.com)
+2. Open your app → **API** → **API Keys**
+3. Copy the **APP_ID** into `.env.local`
 
-### Создать первого пользователя
+### Create the First User
 
-Пользователи хранятся в системной структуре **App Users** (`WebUser`). После того как вы добавили APP_ID, можно вручную создать первого пользователя:
+Users are stored in the system structure **App Users** (`WebUser`). After adding the APP_ID, you can manually create the first user:
 
-1. В Directual откройте структуру **App Users** (она же `WebUser`)
-2. Создайте новый объект:
-   - **id** — email пользователя (например `admin@example.com`)
-   - **password** — пароль. **Обязательно нажмите кнопку encrypt** рядом с полем, т.к. пароли хранятся в зашифрованном виде
-3. Сохраните объект
+1. In Directual, open the **App Users** structure (a.k.a. `WebUser`)
+2. Create a new object:
+   - **id** — user email (e.g. `admin@example.com`)
+   - **password** — password. **Make sure to click the Encrypt button** next to the field, since passwords are stored encrypted
+3. Save the object
 
-Теперь можно залогиниться в приложении под этим email и паролем.
+You can now log in to the app with this email and password.
 
-> Если не нажать Encrypt — пароль сохранится как обычная строка, и авторизация работать не будет: Directual сравнивает хэши, а не plain text.
+> If you don't click Encrypt — the password will be saved as a plain string, and authentication won't work: Directual compares hashes, not plain text.
 
-### Настроить отправку email
+### Set Up Email Sending
 
-Для работы **magic link** (вход по ссылке из письма) и **восстановления пароля** необходимо подключить отправку электронной почты в вашем приложении Directual:
+For **magic link** (sign in via email link) and **password reset** to work, you need to configure email sending in your Directual app:
 
-1. **Подключить email-шлюз** — один из вариантов:
-   - Плагин **SMTP** в Directual (Plugins → SMTP) — подключите свой почтовый сервер или сервис (Gmail, Yandex, SendGrid, Mailgun и т.д.)
-   - Любой другой email-шлюз, поддерживаемый Directual
+1. **Connect an email gateway** — one of the options:
+   - **SMTP** plugin in Directual (Plugins → SMTP) — connect your mail server or service (Gmail, Yandex, SendGrid, Mailgun, etc.)
+   - Any other email gateway supported by Directual
 
-2. **Настроить сценарии отправки писем:**
+2. **Set up email sending scenarios:**
 
 #### Magic Link:
-1. Создать сценарий в Directual
-2. Триггер: создание записи в `magic_link_link_request`
-3. Действие: отправка email с ссылкой `https://your-app.com/auth/magic/${token}`
+1. Create a scenario in Directual
+2. Trigger: record creation in `magic_link_link_request`
+3. Action: send email with link `https://your-app.com/auth/magic/${token}`
 
 #### Reset Password:
-1. Создать сценарий в Directual
-2. Триггер: создание записи в `ResetPasswordRequest`
-3. Действие: отправка email с ссылкой `https://your-app.com/auth/new-password/${token}`
+1. Create a scenario in Directual
+2. Trigger: record creation in `ResetPasswordRequest`
+3. Action: send email with link `https://your-app.com/auth/new-password/${token}`
 
-> Без подключённой электронной почты magic link и восстановление пароля работать не будут — письма просто не уйдут.
+> Without email configured, magic link and password reset won't work — emails simply won't be sent.
 
-### Настроить WebSocket
+### Set Up WebSocket
 
-1. В Directual → **Plugins** → **Socket.IO**
-2. В сценариях можно отправлять события через шаг PUSH-уведомления:
+1. In Directual → **Plugins** → **Socket.IO**
+2. In scenarios you can send events via the PUSH notification step:
    ```javascript
-   // Пример: отправка уведомления пользователю
-   user: "*", // * для бродкаста, или укажите ID юзера
+   // Example: sending a notification to a user
+   user: "*", // * for broadcast, or specify user ID
    event: 'alert', 
-   message: // валидный JSON
+   message: // valid JSON
     {
       "variant": "default",
-      "title": "Успех",
-      "description": "Проект \"{{payload.title}}\" успешно создан",
+      "title": "Success",
+      "description": "Project \"{{payload.title}}\" created successfully",
       "icon": "CheckCircle"
     }
    ```
 
-Встроенные события (обрабатываются автоматически в `SocketListener`):
-- **`alert`** — показать уведомление (через `window.__showGlobalAlert`)
-- **`refresh`** — обновить данные (через `window.__refreshData` → `refreshAll()` в DataProvider)
+Built-in events (handled automatically in `SocketListener`):
+- **`alert`** — show a notification (via `window.__showGlobalAlert`)
+- **`refresh`** — refresh data (via `window.__refreshData` → `refreshAll()` in DataProvider)
 
-**Можно добавлять какие угодно свои события** — для этого зарегистрируйте обработчик в `SocketListener` или используйте хук `useSocketEvent` (см. ниже).
+**You can add any custom events** — register a handler in `SocketListener` or use the `useSocketEvent` hook (see below).
 
-> **Важно:** не подписывайтесь на `alert` и `refresh` через `useSocketEvent` — они уже обрабатываются в `SocketListener`. Двойная подписка приведёт к дублированию вызовов.
+> **Important:** don't subscribe to `alert` and `refresh` via `useSocketEvent` — they're already handled in `SocketListener`. Double subscription will cause duplicate calls.
 
-## Структура проекта
+## Project Structure
 
 ```
 app/
 ├── api/
-│   ├── auth/          # API routes для авторизации
-│   └── good/api/v5/stream/[...path]/  # SSE стриминг прокси (без буферизации)
-├── auth/              # Страницы авторизации (login, magic, reset)
-├── dashboard/         # Защищенные страницы dashboard
-│   ├── page.tsx       # Home с тестовой формой стриминга
-│   ├── profile/       # Профиль пользователя
-│   └── settings/      # Настройки
-├── layout.tsx         # Root layout с провайдерами
-└── globals.css        # Глобальные стили (Tailwind + shadcn/ui)
+│   ├── auth/          # Auth API routes
+│   └── good/api/v5/stream/[...path]/  # SSE streaming proxy (unbuffered)
+├── auth/              # Auth pages (login, magic, reset)
+├── dashboard/         # Protected dashboard pages
+│   ├── page.tsx       # Home with streaming test form
+│   ├── profile/       # User profile
+│   └── settings/      # Settings
+├── layout.tsx         # Root layout with providers
+└── globals.css        # Global styles (Tailwind + shadcn/ui)
 
 components/
-├── ui/                # shadcn/ui компоненты
-├── dashboard/         # Компоненты dashboard (sidebar, etc.)
-├── auth/              # Формы авторизации
-├── socket-listener.tsx # Слушатель WebSocket событий
-└── global-alerts.tsx  # Глобальные уведомления
+├── ui/                # shadcn/ui components
+├── dashboard/         # Dashboard components (sidebar, etc.)
+├── auth/              # Auth forms
+├── socket-listener.tsx # WebSocket event listener
+└── global-alerts.tsx  # Global notifications
 
 context/
-├── auth-provider.tsx  # Контекст авторизации
-├── data-provider.tsx  # Контекст данных (профиль)
-└── theme-provider.tsx # Контекст темы (light/dark)
+├── auth-provider.tsx  # Auth context
+├── data-provider.tsx  # Data context (profile)
+└── theme-provider.tsx # Theme context (light/dark)
 
 lib/
-├── directual/         # Directual API интеграция
+├── directual/         # Directual API integration
 │   ├── client.ts      # API client (apiHost + streamApiHost)
-│   ├── fetcher.ts     # Wrapper с методами (get/post/stream/upload)
+│   ├── fetcher.ts     # Wrapper with methods (get/post/stream/upload)
 │   └── socket.ts      # Socket.IO connection
-└── utils.ts           # Утилиты
+└── utils.ts           # Utilities
 
 types/
-└── index.ts           # TypeScript типы
+└── index.ts           # TypeScript types
 ```
 
-## Добавление новых страниц
+## Adding New Pages
 
-### Публичная страница:
+### Public page:
 
 ```tsx
 // app/about/page.tsx
@@ -190,7 +190,7 @@ export default function AboutPage() {
 }
 ```
 
-### Защищенная страница:
+### Protected page:
 
 ```tsx
 // app/dashboard/my-page/page.tsx
@@ -202,21 +202,21 @@ export default function MyPage() {
   const { user } = useAuth();
   
   if (!user) {
-    return <div>Загрузка...</div>;
+    return <div>Loading...</div>;
   }
   
   return <div>Hello, {user.name}!</div>;
 }
 ```
 
-Добавьте пункт меню в `config/dashboard-menu.json`:
+Add a menu item in `config/dashboard-menu.json`:
 
 ```json
 {
   "topItems": [
     {
       "id": "my-page",
-      "label": "Моя страница",
+      "label": "My Page",
       "icon": "Star",
       "type": "route",
       "route": "/dashboard/my-page"
@@ -225,23 +225,23 @@ export default function MyPage() {
 }
 ```
 
-## Добавление новых эндпоинтов в Fetcher
+## Adding New Endpoints to the Fetcher
 
 ```typescript
 // lib/directual/fetcher.ts
 
-// GET запрос
+// GET request
 async getMyData(queryParams: Record<string, unknown> = {}): Promise<GetResponse> {
   return this.get('my_structure', 'getMyData', queryParams);
 }
 
-// POST запрос
+// POST request
 async postMyAction(payload: Record<string, unknown> = {}): Promise<PostResponse> {
   return this.post('my_actions', 'postMyAction', payload);
 }
 ```
 
-Использование:
+Usage:
 
 ```typescript
 import { fetcher } from '@/lib/directual/fetcher';
@@ -252,21 +252,21 @@ if (result.success) {
 }
 ```
 
-## Стриминг (SSE)
+## Streaming (SSE)
 
-Темплейт поддерживает реал-тайм стриминг через Server-Sent Events. Под капотом: Route Handler проксирует запросы на `api.alfa.directual.com` без буферизации.
+The template supports real-time streaming via Server-Sent Events. Under the hood: a Route Handler proxies requests to `api.alfa.directual.com` without buffering.
 
-### Архитектура стриминга
+### Streaming Architecture
 
 ```
 Browser → /api/good/api/v5/stream/* → Route Handler → api.alfa.directual.com
                                             ↓
-                                    ReadableStream (без буферизации)
+                                    ReadableStream (unbuffered)
 ```
 
-**Почему не rewrites?** Next.js rewrites буферизируют весь ответ и отдают клиенту только когда upstream закроет соединение. Стриминг через rewrite **не работает**.
+**Why not rewrites?** Next.js rewrites buffer the entire response and deliver it to the client only when upstream closes the connection. Streaming via rewrite **does not work**.
 
-**Решение:** Route Handler в `app/api/good/api/v5/stream/[...path]/route.ts` пробрасывает `ReadableStream` напрямую:
+**Solution:** Route Handler in `app/api/good/api/v5/stream/[...path]/route.ts` passes through the `ReadableStream` directly:
 
 ```typescript
 return new Response(response.body, {
@@ -278,16 +278,16 @@ return new Response(response.body, {
 });
 ```
 
-### Готовый метод: `fetcher.streamPrompt()`
+### Ready-made Method: `fetcher.streamPrompt()`
 
-Для структуры `streaming` / эндпоинта `stream`:
+For the `streaming` structure / `stream` endpoint:
 
 ```typescript
 import fetcher from '@/lib/directual/fetcher';
 
-const result = await fetcher.streamPrompt('Привет!', {
+const result = await fetcher.streamPrompt('Hello!', {
   onData: (data: unknown) => {
-    // Парсим Anthropic SSE формат
+    // Parse Anthropic SSE format
     const chunk = data as { content?: string };
     if (!chunk || typeof chunk.content !== 'string') return;
 
@@ -296,51 +296,51 @@ const result = await fetcher.streamPrompt('Привет!', {
 
     const parsed = JSON.parse(line.slice(6));
     if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
-      // Текст от модели — выводим посимвольно
+      // Text from the model — output character by character
       console.log(parsed.delta.text);
     }
   },
-  onError: (error) => console.error('Ошибка:', error),
-  onComplete: () => console.log('Готово'),
+  onError: (error) => console.error('Error:', error),
+  onComplete: () => console.log('Done'),
 });
 
-// Остановить стрим
+// Stop the stream
 if (result.success && result.stream) {
   result.stream.abort();
 }
 ```
 
-### Универсальный метод: `fetcher.stream()`
+### Universal Method: `fetcher.stream()`
 
-Для любой структуры/эндпоинта:
+For any structure/endpoint:
 
 ```typescript
 const result = await fetcher.stream(
-  'my_structure',      // структура
-  'my_endpoint',       // эндпоинт
-  { prompt: 'hello' }, // тело запроса
+  'my_structure',      // structure
+  'my_endpoint',       // endpoint
+  { prompt: 'hello' }, // request body
   {
     onData: (data, event) => {
       // event: 'start' | 'chunk' | 'done'
-      // data — автоматически распаршен из JSON
+      // data — automatically parsed from JSON
       console.log(event, data);
     },
-    onError: (error) => console.error('Ошибка:', error),
-    onComplete: () => console.log('Стрим завершён'),
+    onError: (error) => console.error('Error:', error),
+    onComplete: () => console.log('Stream finished'),
   },
 );
 
-// Результат содержит управление стримом
+// Result contains stream control
 if (result.success && result.stream) {
-  // Прервать стрим в любой момент
+  // Abort the stream at any time
   result.stream.abort();
 
-  // Или дождаться завершения
+  // Or wait for completion
   await result.stream.promise;
 }
 ```
 
-### Добавление стрим-эндпоинта в Fetcher
+### Adding a Stream Endpoint to the Fetcher
 
 ```typescript
 // lib/directual/fetcher.ts
@@ -354,149 +354,149 @@ async streamChat(
 }
 ```
 
-### Сигнатура `fetcher.stream()`
+### `fetcher.stream()` Signature
 
-| Параметр | Тип | Описание |
-|----------|-----|----------|
-| `structure` | `string` | Название структуры Directual |
-| `endpoint` | `string` | Название эндпоинта |
-| `payload` | `object` | Тело POST-запроса |
-| `callbacks` | `{ onData, onError?, onComplete? }` | Коллбеки для приёма данных |
-| `params` | `object` | Дополнительные query-параметры (опционально) |
-| `silent` | `boolean` | Не показывать алерт при ошибке (опционально) |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `structure` | `string` | Directual structure name |
+| `endpoint` | `string` | Endpoint name |
+| `payload` | `object` | POST request body |
+| `callbacks` | `{ onData, onError?, onComplete? }` | Callbacks for receiving data |
+| `params` | `object` | Additional query parameters (optional) |
+| `silent` | `boolean` | Don't show alert on error (optional) |
 
-## User Actions — единая точка входа для действий
+## User Actions — Single Entry Point for Actions
 
-Паттерн **«единая точка входа»**: вместо создания отдельного эндпоинта под каждое действие, все пользовательские действия отправляются в одну структуру `user_actions`. Тип действия определяется полем `action`, а данные — полем `payload`.
+The **"single entry point"** pattern: instead of creating a separate endpoint for each action, all user actions are sent to a single `user_actions` structure. The action type is determined by the `action` field, and the data by the `payload` field.
 
-Это упрощает фронт (один метод на все случаи) и бекенд (одна структура, маршрутизация через сценарии Directual по полю `action`).
+This simplifies the frontend (one method for everything) and backend (one structure, routing via Directual scenarios by the `action` field).
 
-### Использование
+### Usage
 
 ```typescript
 import fetcher from '@/lib/directual/fetcher';
 
-// Любое пользовательское действие — один метод
-await fetcher.postUserAction('submit_feedback', { text: 'Всё супер', rating: 5 });
+// Any user action — one method
+await fetcher.postUserAction('submit_feedback', { text: 'Great stuff', rating: 5 });
 await fetcher.postUserAction('invite_user', { email: 'friend@example.com' });
 await fetcher.postUserAction('change_role', { userId: '123', role: 'admin' });
 ```
 
-### Структура запроса
+### Request Structure
 
-| Поле | Тип | Описание |
-|------|-----|----------|
-| `action` | `string` | Название действия (например `submit_feedback`, `invite_user`) |
-| `payload` | `object` | Произвольные данные действия |
+| Field | Type | Description |
+|-------|------|-------------|
+| `action` | `string` | Action name (e.g. `submit_feedback`, `invite_user`) |
+| `payload` | `object` | Arbitrary action data |
 
-### Настройка в Directual
+### Directual Setup
 
-1. Создать структуру `user_actions` с полями `action` (string) и `payload` (json/object)
-2. Создать эндпоинт `postUserAction` (POST) на структуре `user_actions`
-3. Создать сценарии с триггером на создание записи в `user_actions`, фильтруя по полю `action`
+1. Create a `user_actions` structure with `action` (string) and `payload` (json/object) fields
+2. Create a `postUserAction` endpoint (POST) on the `user_actions` structure
+3. Create scenarios triggered on record creation in `user_actions`, filtering by the `action` field
 
-Например: сценарий «Обработка фидбэка» срабатывает при `action == "submit_feedback"` и делает что нужно с данными из `payload`.
+For example: a "Handle Feedback" scenario triggers when `action == "submit_feedback"` and processes the data from `payload`.
 
-## Загрузка файлов
+## File Uploads
 
-Шаблон включает готовый механизм загрузки файлов на сервер Directual через `fetcher.uploadFile`.
+The template includes a ready-made file upload mechanism to Directual via `fetcher.uploadFile`.
 
-### Как работает
+### How It Works
 
-1. Файл отправляется `multipart/form-data` на эндпоинт `file_links/uploadFiles`
-2. Запрос проксируется через Next.js rewrites (обход CORS)
-3. При наличии колбэка `onProgress` используется `XMLHttpRequest` для отслеживания прогресса загрузки
-4. Directual возвращает `{ urlLink: string }` — URL загруженного файла
+1. The file is sent as `multipart/form-data` to the `file_links/uploadFiles` endpoint
+2. The request is proxied through Next.js rewrites (bypassing CORS)
+3. When an `onProgress` callback is provided, `XMLHttpRequest` is used to track upload progress
+4. Directual returns `{ urlLink: string }` — the URL of the uploaded file
 
-### Использование
+### Usage
 
 ```typescript
 import fetcher from '@/lib/directual/fetcher';
 
-// Простая загрузка
+// Simple upload
 const result = await fetcher.uploadFile(file);
 if (result.success && result.data) {
-  console.log('URL файла:', result.data.urlLink);
+  console.log('File URL:', result.data.urlLink);
 }
 
-// С отслеживанием прогресса
+// With progress tracking
 const result = await fetcher.uploadFile(file, (percent) => {
-  console.log(`Загружено: ${Math.round(percent)}%`);
+  console.log(`Uploaded: ${Math.round(percent)}%`);
 });
 ```
 
-### Пример: аватарка в профиле
+### Example: Profile Avatar
 
-На странице профиля (`app/dashboard/profile/page.tsx`) реализован полный флоу загрузки аватарки:
+The profile page (`app/dashboard/profile/page.tsx`) implements a full avatar upload flow:
 
-1. Клик по аватару открывает `<input type="file" accept="image/*">`
-2. Выбранный файл мгновенно показывается как локальный превью (`URL.createObjectURL`)
-3. Файл загружается через `fetcher.uploadFile` с круговым прогресс-баром поверх аватара
-4. Полученный URL сохраняется в локальный стейт (`pendingUserpic`), появляется кнопка «Сохранить»
-5. По клику «Сохранить» URL записывается в поле `userpic` профиля вместе с остальными полями
+1. Clicking the avatar opens `<input type="file" accept="image/*">`
+2. The selected file is instantly shown as a local preview (`URL.createObjectURL`)
+3. The file is uploaded via `fetcher.uploadFile` with a circular progress bar over the avatar
+4. The resulting URL is saved to local state (`pendingUserpic`), a "Save" button appears
+5. On "Save" click, the URL is written to the `userpic` profile field along with other fields
 
-### Настройка в Directual
+### Directual Setup
 
-Для работы загрузки нужен эндпоинт:
+For file uploads to work, you need the following endpoint:
 
-| Эндпоинт | Метод | Структура | Назначение |
-|----------|-------|-----------|------------|
-| `uploadFiles` | POST | `file_links` | Загрузка файлов (multipart/form-data) |
+| Endpoint | Method | Structure | Purpose |
+|----------|--------|-----------|---------|
+| `uploadFiles` | POST | `file_links` | File uploads (multipart/form-data) |
 
-Также в `next.config.ts` должен быть настроен rewrite для проксирования запросов:
+Also, `next.config.ts` must have a rewrite configured to proxy requests:
 
 ```
 /good/api/v5/* → https://api.directual.com/good/api/v5/*
 ```
 
-## WebSocket события
+## WebSocket Events
 
-### Отправка с бекенда (Directual сценарий):
+### Sending from the Backend (Directual Scenario):
 
 ```javascript
-// Уведомление
+// Notification
 socket.emit('alert', {
   variant: 'default',
-  title: 'Успешно!',
-  description: 'Данные обновлены',
+  title: 'Success!',
+  description: 'Data updated',
   icon: 'CheckCircle'
 });
 
-// Обновление данных
+// Refresh data
 socket.emit('refresh');
 ```
 
-### Прослушивание кастомных событий на клиенте:
+### Listening to Custom Events on the Client:
 
 ```typescript
 import { useSocketEvent } from '@/hooks/use-socket';
 
-// Для своих кастомных событий — используйте useSocketEvent
+// For your custom events — use useSocketEvent
 useSocketEvent('custom_event', (payload) => {
-  console.log('Получено событие:', payload);
+  console.log('Event received:', payload);
 });
 ```
 
-## Деплой
+## Deployment
 
-### Vercel (рекомендуется для быстрого старта):
+### Vercel (recommended for quick start):
 
 ```bash
-# 1. Установить Vercel CLI
+# 1. Install Vercel CLI
 npm i -g vercel
 
-# 2. Деплой
+# 2. Deploy
 vercel
 
-# 3. Добавить переменные окружения в Vercel Dashboard
+# 3. Add environment variables in Vercel Dashboard
 ```
 
-### Docker (для production):
+### Docker (for production):
 
-#### Локальная сборка:
+#### Local build:
 
 ```bash
-# Build образа с передачей APP_ID
+# Build image with APP_ID
 docker build \
   --build-arg NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id \
   -t nextjs-directual-app .
@@ -510,84 +510,84 @@ docker run -p 3000:3000 \
 #### Docker Compose:
 
 ```bash
-# Создать .env файл
+# Create .env file
 echo "NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id" > .env
 
-# Запустить
+# Start
 docker-compose up -d
 
-# Остановить
+# Stop
 docker-compose down
 ```
 
-### Деплой в облако (Docker)
+### Cloud Deployment (Docker)
 
-Выберите облачный провайдер для хостинга Docker-контейнеров:
+Choose a cloud provider for hosting Docker containers:
 
-#### 1. Любой VPS (Россия / международный)
+#### 1. Any VPS
 
 ```bash
-# 1. Арендовать VPS (Ubuntu 22.04) у любого провайдера
-# 2. Подключиться по SSH
+# 1. Rent a VPS (Ubuntu 22.04) from any provider
+# 2. Connect via SSH
 ssh root@your-server-ip
 
-# 3. Установить Docker
+# 3. Install Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 
-# 4. Склонировать репозиторий
+# 4. Clone the repository
 git clone https://github.com/your-username/your-repo.git
 cd your-repo
 
-# 5. Создать .env
+# 5. Create .env
 nano .env
-# Добавить: NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id
+# Add: NEXT_PUBLIC_DIRECTUAL_APP_ID=your_app_id
 
-# 6. Запустить
+# 6. Start
 docker-compose up -d
 
-# 7. Настроить nginx reverse proxy (опционально)
+# 7. Set up nginx reverse proxy (optional)
 ```
 
-#### 2. Railway.app (международный, карта любая)
+#### 2. Railway.app
 
-1. Зарегистрироваться на [railway.app](https://railway.app)
+1. Sign up at [railway.app](https://railway.app)
 2. New Project → Deploy from GitHub repo
-3. Выбрать ваш репозиторий
-4. Railway автоматически обнаружит Dockerfile
-5. Добавить переменную окружения: `NEXT_PUBLIC_DIRECTUAL_APP_ID`
+3. Select your repository
+4. Railway will automatically detect the Dockerfile
+5. Add environment variable: `NEXT_PUBLIC_DIRECTUAL_APP_ID`
 6. Deploy!
 
-**Цена:** $5/мес базовый план (500 часов работы)
+**Price:** $5/mo base plan (500 hours of runtime)
 
-#### 3. Render.com (международный)
+#### 3. Render.com
 
-1. Зарегистрироваться на [render.com](https://render.com)
+1. Sign up at [render.com](https://render.com)
 2. New → Web Service
 3. Connect GitHub repository
-4. Настройки:
+4. Settings:
    - Environment: Docker
-   - Build Command: (автоматически)
-   - Environment Variables: добавить `NEXT_PUBLIC_DIRECTUAL_APP_ID`
+   - Build Command: (automatic)
+   - Environment Variables: add `NEXT_PUBLIC_DIRECTUAL_APP_ID`
 5. Create Web Service
 
-**Цена:** от $7/мес за 512MB RAM
+**Price:** from $7/mo for 512MB RAM
 
 #### 4. DigitalOcean App Platform
 
 ```bash
-# 1. Установить doctl CLI
+# 1. Install doctl CLI
 brew install doctl  # macOS
-# или скачать с github.com/digitalocean/doctl
+# or download from github.com/digitalocean/doctl
 
-# 2. Авторизоваться
+# 2. Authenticate
 doctl auth init
 
-# 3. Создать App
+# 3. Create App
 doctl apps create --spec .do/app.yaml
 ```
 
-Создать `.do/app.yaml`:
+Create `.do/app.yaml`:
 
 ```yaml
 name: nextjs-directual-app
@@ -606,27 +606,11 @@ services:
   instance_size_slug: basic-xxs
 ```
 
-**Цена:** от $5/мес
-
-#### 5. Selectel (Россия, рубли)
-
-Арендуете VPS, ставите Docker, деплоите через docker-compose.
-
-**Цена:** от ~250₽/мес
-
-#### 6. VK Cloud (Россия, рубли)
-
-VPS с Docker или Container as a Service:
-
-1. Создать виртуальную машину или контейнер
-2. Настроить Docker
-3. Задеплоить через docker-compose или загрузить образ
-
-**Цена:** от ~400₽/мес
+**Price:** from $5/mo
 
 ### GitHub Actions CI/CD
 
-Создайте `.github/workflows/deploy.yml`:
+Create `.github/workflows/deploy.yml`:
 
 ```yaml
 name: Build and Deploy
@@ -696,31 +680,31 @@ jobs:
             docker system prune -f
 ```
 
-#### Необходимые GitHub Secrets:
+#### Required GitHub Secrets:
 
-- `DIRECTUAL_APP_ID` — ваш Directual APP_ID
-- `DEPLOY_HOST` — IP/домен сервера (если есть deploy step)
-- `DEPLOY_USER` — SSH user (если есть deploy step)
-- `DEPLOY_KEY` — SSH приватный ключ (если есть deploy step)
+- `DIRECTUAL_APP_ID` — your Directual APP_ID
+- `DEPLOY_HOST` — server IP/domain (if using deploy step)
+- `DEPLOY_USER` — SSH user (if using deploy step)
+- `DEPLOY_KEY` — SSH private key (if using deploy step)
 
-Образы будут публиковаться в GitHub Container Registry (`ghcr.io/your-username/repo-name`)
+Images will be published to GitHub Container Registry (`ghcr.io/your-username/repo-name`)
 
-## Полезные команды
+## Useful Commands
 
 ```bash
-npm run dev          # Development сервер
+npm run dev          # Development server
 npm run build        # Production build
-npm run start        # Production сервер
-npm run lint         # ESLint проверка
+npm run start        # Production server
+npm run lint         # ESLint check
 ```
 
-## Полезные ссылки
+## Useful Links
 
 - [Next.js Docs](https://nextjs.org/docs)
 - [Directual Docs](https://readme.directual.com)
 - [shadcn/ui](https://ui.shadcn.com)
 - [Tailwind CSS](https://tailwindcss.com)
 
-## Лицензия
+## License
 
 MIT
